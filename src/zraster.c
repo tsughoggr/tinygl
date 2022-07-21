@@ -1,7 +1,7 @@
-#include "../include/GL/gl.h"
-#include "../include/zbuffer.h"
-#include "msghandling.h"
+#include <u.h>
+#include <libc.h>
 #include "zgl.h"
+#include "msghandling.h"
 
 static void gl_vertex_transform_raster(GLVertex* v) {
 	GLContext* c = gl_get_context();
@@ -134,7 +134,7 @@ void glopDrawPixels(GLParam* p) {
 		gl_add_select(zz, zz);
 		return;
 	} else if (c->render_mode == GL_FEEDBACK) {
-		gl_add_feedback(GL_DRAW_PIXEL_TOKEN, &(c->rastervertex), NULL, NULL, 0);
+		gl_add_feedback(GL_DRAW_PIXEL_TOKEN, &(c->rastervertex), nil, nil, 0);
 		return;
 	}
 #endif

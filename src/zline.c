@@ -1,5 +1,8 @@
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#include <memdraw.h>
 #include "../include/zbuffer.h"
-#include <stdlib.h>
 
 #define ZCMP(z, zpix) (!(zbdt) || z >= (zpix))
 

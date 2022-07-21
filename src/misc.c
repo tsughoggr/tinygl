@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "msghandling.h"
 #include "zgl.h"
 

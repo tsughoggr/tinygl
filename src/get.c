@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "msghandling.h"
 #include "zgl.h"
 
@@ -165,7 +167,7 @@ const GLubyte* glGetString(GLenum name) {
 	case GL_LICENSE:
 		return license_string;
 	}
-	return NULL;
+	return nil;
 }
 
 

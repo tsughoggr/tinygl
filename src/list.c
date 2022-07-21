@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "msghandling.h"
 #include "zgl.h"
 
@@ -29,21 +31,21 @@ static void delete_list(GLint list) {
 	GLList* l;
 
 	l = find_list(list);
-	if (l == NULL) { 
+	if (l == nil) { 
 		return;
 	}
 	
 
 	/* free param buffer */
 	pb = l->first_op_buffer;
-	while (pb != NULL) {
+	while (pb != nil) {
 		pb1 = pb->next;
 		gl_free(pb);
 		pb = pb1;
 	}
 
 	gl_free(l);
-	c->shared_state.lists[list] = NULL;
+	c->shared_state.lists[list] = nil;
 }
 void glDeleteLists(GLuint list, GLuint range) {
 	GLuint i;
@@ -60,7 +62,7 @@ static GLList* alloc_list(GLint list) {
 	GLList* l;
 	GLParamBuffer* ob;
 	GLContext* c = gl_get_context();
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 	l = gl_zalloc(sizeof(GLList));
 	ob = gl_zalloc(sizeof(GLParamBuffer));
@@ -68,7 +70,7 @@ static GLList* alloc_list(GLint list) {
 #if TGL_FEATURE_ERROR_CHECK
 	if (!l || !ob)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 
 #else
@@ -77,7 +79,7 @@ static GLList* alloc_list(GLint list) {
 	 This will crash a few lines down, so, let it!
 	 */
 #endif
-		ob->next = NULL;
+		ob->next = nil;
 	l->first_op_buffer = ob;
 
 	ob->ops[0].op = OP_EndList;
@@ -155,7 +157,7 @@ void gl_compile_op(GLParam* p) {
 		
 		
 #endif
-			ob1->next = NULL;
+			ob1->next = nil;
 
 		ob->next = ob1;
 		ob->ops[index].op = OP_NextBuffer;
@@ -173,10 +175,10 @@ void gl_compile_op(GLParam* p) {
 	c->current_op_buffer_index = index;
 }
 /* this opcode is never called directly */
-void glopEndList(GLParam* p) { exit(1); }
+void glopEndList(GLParam* p) { exits(nil); }
 
 /* this opcode is never called directly */
-void glopNextBuffer(GLParam* p) { exit(1); }
+void glopNextBuffer(GLParam* p) { exits(nil); }
 
 void glopCallList(GLParam* p) {
 	
@@ -187,7 +189,7 @@ void glopCallList(GLParam* p) {
 	l = find_list(list);
 
 #if TGL_FEATURE_ERROR_CHECK == 1
-	if (l == NULL) {
+	if (l == nil) {
 		gl_fatal_error("Bad list op, not defined");
 	}
 #else
@@ -230,17 +232,17 @@ void glNewList(GLuint list, GLint mode) {
 	
 #endif
 			l = find_list(list);
-	if (l != NULL)
+	if (l != nil)
 		delete_list(list);
 	l = alloc_list(list);
 #include "error_check.h"
 #if TGL_FEATURE_ERROR_CHECK == 1
-	if (l == NULL)
+	if (l == nil)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
 #else
 	
-	if (l == NULL)
+	if (l == nil)
 		gl_fatal_error("Could not find or allocate list.");
 #endif
 		c->current_op_buffer = l->first_op_buffer;
@@ -274,7 +276,7 @@ GLint glIsList(GLuint list) {
 	
 	GLList* l;
 	l = find_list(list);
-	return (l != NULL);
+	return (l != nil);
 }
 
 GLuint glGenLists(GLint range) {
@@ -286,7 +288,7 @@ GLuint glGenLists(GLint range) {
 	lists = c->shared_state.lists;
 	count = 0;
 	for (i = 0; i < MAX_DISPLAY_LISTS; i++) {
-		if (lists[i] == NULL) {
+		if (lists[i] == nil) {
 			count++;
 			if (count == range) {
 				list = i - range + 1;

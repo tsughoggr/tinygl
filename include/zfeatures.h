@@ -99,18 +99,8 @@ Optimization hint- cost of branching.
 #define TGL_OPTIMIZATION_HINT_BRANCH_COST 2
 
 
-#ifdef __TINYC__
-#undef TGL_FEATURE_ALIGNAS
-#define TGL_FEATURE_ALIGNAS 0
-#endif
-
-
-#if TGL_FEATURE_ALIGNAS == 1
-#include <stdalign.h>
-#define TGL_ALIGN alignas(16)
-#else
 #define TGL_ALIGN /*a comment*/
-#endif
+
 
 
 #define TGL_FEATURE_16_BITS        0

@@ -2,22 +2,22 @@
 #define __ZMATH__
 #include "../include/GL/gl.h"
 #include "../include/zfeatures.h"
-#include <math.h>
-#include <stdlib.h>
-#include <string.h> 
 /* Matrix & Vertex */
+typedef struct M4 M4;
+typedef struct M3 M3;
+typedef struct M34 M34;
 
-typedef struct {
+struct M4 {
 	TGL_ALIGN GLfloat m[4][4];
-} M4;
+};
 
-typedef struct {
+struct M3 {
 	TGL_ALIGN GLfloat m[3][3];
-} M3;
+};
 
-typedef struct {
+struct M34{
 	TGL_ALIGN GLfloat m[3][4];
-} M34;
+};
 
 #define X v[0]
 #define Y v[1]

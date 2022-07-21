@@ -1,10 +1,9 @@
-#include "../include/GL/gl.h"
-#include "../include/zbuffer.h"
-#include "font8x8_basic.h"
+#include <u.h>
+#include <libc.h>
 #include "zgl.h"
+#include "font8x8_basic.h"
 
 
-#include <stdlib.h>
 
 
 void glTextSize(GLTEXTSIZE mode) {

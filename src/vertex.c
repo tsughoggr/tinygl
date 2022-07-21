@@ -1,5 +1,6 @@
+#include <u.h>
+#include <libc.h>
 #include "zgl.h"
-#include <string.h>
 void glopNormal(GLParam* p) {
 	V3 v;
 	GLContext* c = gl_get_context();

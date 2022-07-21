@@ -4,11 +4,143 @@
  *
  */
 
-#include <stdlib.h>
-#include <string.h>
+
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#include <memdraw.h>
+#include <pool.h>
 
 #include "../include/zbuffer.h"
 #include "msghandling.h"
+ZBuffer*
+alloczbufferd(Rectangle r, ulong chan, Memdata *md)
+{
+	int d;
+	ulong l;
+	ZBuffer *i;
+
+	if((d = chantodepth(chan)) == 0) {
+		werrstr("bad channel descriptor %.8lux", chan);
+		return nil;
+	}
+	if(badrect(r)){
+		werrstr("bad rectangle %R", r);
+		return nil;
+	}
+
+	l = wordsperline(r, d);
+
+	i = mallocz(sizeof(ZBuffer), 1);
+	if(i == nil)
+		return nil;
+
+	i->data = md;
+	i->zero = sizeof(ulong)*l*r.min.y;
+	
+	if(r.min.x >= 0)
+		i->zero += (r.min.x*d)/8;
+	else
+		i->zero -= (-r.min.x*d+7)/8;
+	i->zero = -i->zero;
+	i->width = l;
+	i->r = r;
+	i->clipr = r;
+	i->flags = 0;
+	i->layer = nil;
+	i->cmap = memdefcmap;
+	if(memsetchan(i, chan) < 0){
+		free(i);
+		return nil;
+	}
+	return i;
+}
+ZBuffer*
+alloczbuffer(Rectangle r, GLint mode){
+	int d;
+	uchar *p;
+	ulong l, nw;
+	Memdata *md;
+	ZBuffer* i;
+	ulong chan;
+
+	switch (mode) {
+#if TGL_FEATURE_32_BITS == 1
+	case ZB_MODE_RGBA:
+		chan = ABGR32;
+		break;
+#endif
+#if TGL_FEATURE_16_BITS == 1
+	case ZB_MODE_5R6G5B:
+		chan = RGB16;
+		break;
+#endif
+
+	default:
+		werrstr("bad GL channel mode %.8lux", mode);
+		return nil;
+	}
+
+	if((d = chantodepth(chan)) == 0) {
+		werrstr("bad channel descriptor %.8lux", chan);
+		return nil;
+	}
+	if(badrect(r)){
+		werrstr("bad rectangle %R", r);
+		return nil;
+	}
+
+	l = wordsperline(r, d);
+
+	nw = l*Dy(r);
+	md = malloc(sizeof(Memdata));
+	if(md == nil)
+		return nil;
+
+	md->ref = 1;
+	md->base = poolalloc(imagmem, sizeof(Memdata*)+(1+nw)*sizeof(ulong));
+	if(md->base == nil){
+		free(md);
+		return nil;
+	}
+
+	p = (uchar*)md->base;
+	*(Memdata**)p = md;
+	p += sizeof(Memdata*);
+
+	*(ulong*)p = getcallerpc(&r);
+	p += sizeof(ulong);
+
+	/* if this changes, memimagemove must change too */
+	md->bdata = p;
+	md->allocd = 1;
+
+	i = alloczbufferd(r, chan, md);
+	if(i == nil){
+		poolfree(imagmem, md->base);
+		free(md);
+		return nil;
+	}
+	md->imref = i;
+
+	i->xsize = Dx(r);
+	i->ysize = Dy(r);
+
+	/*Technically this should always be 4 even on lower bit systems (see Plan 9 Compilers paper)*/
+	i->linesize = sizeof(int) * i->width;
+	i->pbuf = (PIXEL*)md->bdata;
+	i->frame_buffer_allocated = 0;
+	i->zbuf = gl_malloc(i->xsize * i->ysize * sizeof(GLushort));
+	if(i->zbuf == nil){
+		poolfree(imagmem, md->base);
+		free(md);
+		free(i);
+		return nil;
+	}
+	i->current_texture = nil;
+	return i;
+}
+
 ZBuffer* ZB_open(GLint xsize, GLint ysize, GLint mode,
 
 				 void* frame_buffer) {
@@ -16,8 +148,8 @@ ZBuffer* ZB_open(GLint xsize, GLint ysize, GLint mode,
 	GLint size;
 
 	zb = gl_malloc(sizeof(ZBuffer));
-	if (zb == NULL)
-		return NULL;
+	if (zb == nil)
+		return nil;
 
 	zb->xsize = xsize & ~3; 
 	zb->ysize = ysize;
@@ -42,12 +174,12 @@ ZBuffer* ZB_open(GLint xsize, GLint ysize, GLint mode,
 	size = zb->xsize * zb->ysize * sizeof(GLushort);
 
 	zb->zbuf = gl_malloc(size);
-	if (zb->zbuf == NULL)
+	if (zb->zbuf == nil)
 		goto error;
 
-	if (frame_buffer == NULL) {
+	if (frame_buffer == nil) {
 		zb->pbuf = gl_malloc(zb->ysize * zb->linesize);
-		if (zb->pbuf == NULL) {
+		if (zb->pbuf == nil) {
 			gl_free(zb->zbuf);
 			goto error;
 		}
@@ -57,14 +189,25 @@ ZBuffer* ZB_open(GLint xsize, GLint ysize, GLint mode,
 		zb->pbuf = frame_buffer;
 	}
 
-	zb->current_texture = NULL;
+	zb->current_texture = nil;
 
 	return zb;
 error:
 	gl_free(zb);
-	return NULL;
+	return nil;
 }
-
+void
+freezbuffer(ZBuffer* i){
+	if(i == nil)
+		return;
+	if(--i->data->ref == 0 && i->data->allocd){
+		if(i->data->base)
+			poolfree(imagmem, i->data->base);
+		free(i->data);
+	}
+	gl_free(i->zbuf);
+	gl_free(i);
+}
 void ZB_close(ZBuffer* zb) {
 
 	if (zb->frame_buffer_allocated)
@@ -88,15 +231,15 @@ void ZB_resize(ZBuffer* zb, void* frame_buffer, GLint xsize, GLint ysize) {
 
 	gl_free(zb->zbuf);
 	zb->zbuf = gl_malloc(size);
-	if (zb->zbuf == NULL)
-		exit(1);
+	if (zb->zbuf == nil)
+		exits(nil);
 	if (zb->frame_buffer_allocated)
 		gl_free(zb->pbuf);
 
-	if (frame_buffer == NULL) {
+	if (frame_buffer == nil) {
 		zb->pbuf = gl_malloc(zb->ysize * zb->linesize);
 		if (!zb->pbuf)
-			exit(1);
+			exits(nil);
 		zb->frame_buffer_allocated = 1;
 	} else {
 		zb->pbuf = frame_buffer;

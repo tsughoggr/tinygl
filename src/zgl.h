@@ -4,13 +4,12 @@
 #define NDEBUG
 #endif
 #include "../include/GL/gl.h"
+#include <draw.h>
+#include <memdraw.h>
 #include "../include/zbuffer.h"
 #include "../include/zfeatures.h"
 #include "zmath.h"
-#include <math.h>
-#include <stdlib.h>
 
-#include <string.h>
 #ifndef M_PI
 #define M_PI 3.1415926535897932384626433832795
 #endif

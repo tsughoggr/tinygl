@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "zgl.h"
 
 GLint glRenderMode(GLint mode) {
@@ -36,28 +38,28 @@ GLint glRenderMode(GLint mode) {
 	case GL_SELECT:
 
 #if TGL_FEATURE_ERROR_CHECK == 1
-		if (c->select_buffer == NULL)
+		if (c->select_buffer == nil)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #define RETVAL 0
 #include "error_check.h"
 #else
-		if (c->select_buffer == NULL)
+		if (c->select_buffer == nil)
 			return 0;
 #endif
 			c->render_mode = GL_SELECT;
 		c->select_ptr = c->select_buffer;
 		c->select_hits = 0;
 		c->select_overflow = 0;
-		c->select_hit = NULL;
+		c->select_hit = nil;
 		break;
 	case GL_FEEDBACK:
 #if TGL_FEATURE_ERROR_CHECK == 1
-		if (c->feedback_buffer == NULL)
+		if (c->feedback_buffer == nil)
 #define ERROR_FLAG GL_INVALID_OPERATION
 #define RETVAL 0
 #include "error_check.h"
 #else
-		if (c->feedback_buffer == NULL)
+		if (c->feedback_buffer == nil)
 			return 0;
 #endif
 			c->render_mode = GL_FEEDBACK;
@@ -274,14 +276,14 @@ void gl_add_feedback(GLfloat token, GLVertex* v1, GLVertex* v2, GLVertex* v3, GL
 void glPassThrough(GLfloat token) {
 
 #include "error_check_no_context.h"
-	gl_add_feedback(GL_PASS_THROUGH_TOKEN, NULL, NULL, NULL, token);
+	gl_add_feedback(GL_PASS_THROUGH_TOKEN, nil, nil, nil, token);
 }
 void glopInitNames(GLParam* p) {
 #if TGL_FEATURE_ALT_RENDERMODES == 1
 	GLContext* c = gl_get_context();
 	if (c->render_mode == GL_SELECT) {
 		c->name_stack_size = 0;
-		c->select_hit = NULL;
+		c->select_hit = nil;
 	}
 #endif
 }
@@ -292,7 +294,7 @@ void glopPushName(GLParam* p) {
 	if (c->render_mode == GL_SELECT) {
 		
 		c->name_stack[c->name_stack_size++] = p[1].i;
-		c->select_hit = NULL;
+		c->select_hit = nil;
 	}
 #endif
 }
@@ -303,7 +305,7 @@ void glopPopName(GLParam* p) {
 	if (c->render_mode == GL_SELECT) {
 		
 		c->name_stack_size--;
-		c->select_hit = NULL;
+		c->select_hit = nil;
 	}
 #endif
 }
@@ -314,7 +316,7 @@ void glopLoadName(GLParam* p) {
 	if (c->render_mode == GL_SELECT) {
 		
 		c->name_stack[c->name_stack_size - 1] = p[1].i;
-		c->select_hit = NULL;
+		c->select_hit = nil;
 	}
 #endif
 }
@@ -326,7 +328,7 @@ void gl_add_select(GLuint zmin, GLuint zmax) {
 	GLuint* ptr;
 	GLint n, i;
 	if (!c->select_overflow) {
-		if (c->select_hit == NULL) {
+		if (c->select_hit == nil) {
 			n = c->name_stack_size;
 			if ((c->select_ptr - c->select_buffer + 3 + n) > c->select_size) { 
 				c->select_overflow = 1;

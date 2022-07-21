@@ -1,10 +1,10 @@
 /* Some simple mathematical functions. Don't look for some logic in
    the function names :-) */
 
+#include <u.h>
+#include <libc.h>
 #include "zmath.h"
 
-#include <stdlib.h>
-#include <string.h>
 
 /* ******* Gestion des matrices 4x4 ****** */
 
@@ -21,23 +21,44 @@ void gl_M4_Id(M4* a) {
 				else
 					a->m[i][j] = 0.0;
 	*/
-	const M4 c = (M4){{
+	/*
+	static M4 c = (M4){{
 		{1, 0, 0, 0},
 		{0, 1, 0, 0},
 		{0, 0, 1, 0},
 		{0, 0, 0, 1},
 	}};
+	*/
+	TGL_ALIGN GLfloat m[4][4] = {
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1},
+		};
+	M4 c;
+	memcpy(&c.m, m, 16 * sizeof(TGL_ALIGN GLfloat));
 	*a = c;
 }
 
 GLint gl_M4_IsId(M4* a) {
 	
-	const M4 c = (M4){{
+	/*
+	static M4 c = (M4){{
 		{1, 0, 0, 0},
 		{0, 1, 0, 0},
 		{0, 0, 1, 0},
 		{0, 0, 0, 1},
 	}};
+	*/
+	TGL_ALIGN GLfloat m[4][4] = {
+		{1, 0, 0, 0},
+		{0, 1, 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1},
+		};
+	M4 c;
+	memcpy(&c.m, m, 16 * sizeof(TGL_ALIGN GLfloat));
+
 	return (memcmp(a->m, c.m, 16 * sizeof(GLfloat)) == 0);
 	/*
 		for (i = 0; i < 4; i++)

@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "msghandling.h"
 #include "zgl.h"
 GLContext gl_ctx;
@@ -28,27 +30,27 @@ static void endSharedState(GLContext* c) {
 		if (s->lists[i]) {
 			l = s->lists[i];
 			pb = l->first_op_buffer;
-			while (pb != NULL) {
+			while (pb != nil) {
 				pb1 = pb->next;
 				gl_free(pb);
 				pb = pb1;
 			}
 			gl_free(l);
-			s->lists[i] = NULL;
+			s->lists[i] = nil;
 		}
 	gl_free(s->lists);
 	for (i = 0; i < TEXTURE_HASH_TABLE_SIZE; i++) {
 		t = s->texture_hash_table[i];
 		while (t) {
 			GLTexture** ht;
-			if (t->prev == NULL) {
+			if (t->prev == nil) {
 				ht = &c->shared_state.texture_hash_table[t->handle & TEXTURE_HASH_TABLE_MASK];
 				*ht = t->next;
 			} else {
 				t->prev->next = t->next;
 			}
 			n = t->next;
-			if (t->next != NULL)
+			if (t->next != nil)
 				t->next->prev = t->prev;
 			gl_free(t);
 			t = n;
@@ -215,7 +217,7 @@ void glInit(void* zbuffer1) {
 		l->attenuation[2] = 0;
 		l->enabled = 0;
 	}
-	c->first_light = NULL;
+	c->first_light = nil;
 	c->ambient_light_model = gl_V4_New(0.2, 0.2, 0.2, 1);
 	c->local_light_model = 0;
 	c->lighting_enabled = 0;
@@ -284,12 +286,12 @@ void glInit(void* zbuffer1) {
 	/* selection */
 #if TGL_FEATURE_ALT_RENDERMODES == 1
 	c->render_mode = GL_RENDER;
-	c->select_buffer = NULL;
+	c->select_buffer = nil;
 	c->name_stack_size = 0;
 
 	/* feedback */
-	c->feedback_buffer = NULL;
-	c->feedback_ptr = NULL;
+	c->feedback_buffer = nil;
+	c->feedback_ptr = nil;
 	c->feedback_size = 0;
 	c->feedback_hits = 0;
 	c->feedback_overflow = 0;
@@ -324,11 +326,11 @@ void glInit(void* zbuffer1) {
 	c->offset_states = 0;
 
 	/* clear the resize callback function pointer */
-	c->gl_resize_viewport = NULL;
+	c->gl_resize_viewport = nil;
 
 	/* specular buffer */
 #if TGL_FEATURE_SPECULAR_BUFFERS == 1
-	c->specbuf_first = NULL;
+	c->specbuf_first = nil;
 	c->specbuf_used_counter = 0;
 	c->specbuf_num_buffers = 0;
 #endif
@@ -363,8 +365,8 @@ void glClose(void) {
 	i = 0;
 #if TGL_FEATURE_SPECULAR_BUFFERS == 1
 	{
-		GLSpecBuf *b, *n = NULL;
-		for (b = c->specbuf_first; b != NULL; b = n) {
+		GLSpecBuf *b, *n = nil;
+		for (b = c->specbuf_first; b != nil; b = n) {
 			n = b->next;
 			gl_free(b);
 			i++;

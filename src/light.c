@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "msghandling.h"
 #include "zgl.h"
 
@@ -204,14 +206,14 @@ void gl_enable_disable_light(GLint light, GLint v) {
 		l->enabled = 1;
 		l->next = c->first_light;
 		c->first_light = l;
-		l->prev = NULL;
+		l->prev = nil;
 	} else if (!v && l->enabled) {
 		l->enabled = 0;
-		if (l->prev == NULL)
+		if (l->prev == nil)
 			c->first_light = l->next;
 		else
 			l->prev->next = l->next;
-		if (l->next != NULL)
+		if (l->next != nil)
 			l->next->prev = l->prev;
 	}
 }
@@ -249,7 +251,7 @@ void gl_shade_vertex(GLVertex* v) {
 	B = m->emission.v[2] + m->ambient.v[2] * c->ambient_light_model.v[2];
 	A = m->diffuse.v[3];
 	
-	for (l = c->first_light; l != NULL; l = l->next) {
+	for (l = c->first_light; l != nil; l = l->next) {
 	
 	
 	

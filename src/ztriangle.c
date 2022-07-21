@@ -1,6 +1,9 @@
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#include <memdraw.h>
 #include "../include/zbuffer.h"
 #include "msghandling.h"
-#include <stdlib.h>
 
 
 

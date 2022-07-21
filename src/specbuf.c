@@ -1,7 +1,7 @@
+#include <u.h>
+#include <libc.h>
 #include "msghandling.h"
 #include "zgl.h"
-#include <math.h>
-#include <stdlib.h>
 
 #if TGL_FEATURE_SPECULAR_BUFFERS == 1
 
@@ -29,13 +29,13 @@ GLSpecBuf* specbuf_get_buffer(GLContext* c, const GLint shininess_i, const GLflo
 		found->last_used = c->specbuf_used_counter++;
 		return found;
 	}
-	if (oldest == NULL || c->specbuf_num_buffers < MAX_SPECULAR_BUFFERS) {
+	if (oldest == nil || c->specbuf_num_buffers < MAX_SPECULAR_BUFFERS) {
 		/* create new buffer */
 		GLSpecBuf* buf = gl_malloc(sizeof(GLSpecBuf));
 #if TGL_FEATURE_ERROR_CHECK == 1
 		if (!buf)
 #define ERROR_FLAG GL_OUT_OF_MEMORY
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 #else
 		

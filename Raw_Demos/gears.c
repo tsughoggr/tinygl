@@ -9,18 +9,14 @@
 
 //Only C standard library includes.
 //These are ALL the external dependencies of this program!!! ALL of them!!!
-#include <math.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <stdarg.h>
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#include <event.h>
+#include <keyboard.h>
+#include <memdraw.h>
+#include <tinygl.h>
 
-
-//Doesn't drag in anything.
-#include "../include/GL/gl.h"
-
-//Doesn't drag in anything.
-#include "../include/zbuffer.h"
 //#define CHAD_MATH_IMPL
 
 //Drags in Math and String (which are already dragged in above.)
@@ -37,12 +33,9 @@ and
 #include <assert.h>
 if I didn't define STBIW_ASSERT
 */
-#define STBIW_ASSERT(x) /* a comment */
-#define STB_IMAGE_WRITE_IMPLEMENTATION
-#include "../include-demo/stb_image_write.h"
 
-typedef unsigned char uchar;
-
+void initScene(void);
+void drawgear(void);
 
 
 #ifndef M_PI
@@ -208,11 +201,11 @@ else
 	glEnd();
 }
 
-static GLfloat view_rotx = 20.0, view_roty = 30.0;
+GLfloat view_rotx = 20.0, view_roty = 45.0;
 static GLint gear1, gear2, gear3;
 static GLfloat angle = 0.0;
 
-void draw() {
+void drawgear() {
 	angle += 2.0;
 	glPushMatrix();
 	glRotatef(view_rotx, 1.0, 0.0, 0.0);
@@ -293,10 +286,11 @@ void initScene() {
 	// glEnable( GL_NORMALIZE );
 }
 
+/*
 int main(int argc, char** argv) {
 	// initialize SDL video:
-	int winSizeX = 640;
-	int winSizeY = 480;
+	int wsx = 640;
+	int wsy = 480;
 	PIXEL* imbuf = NULL;
 	uchar* pbuf = NULL;
 	unsigned int flat = 0;
@@ -307,9 +301,9 @@ int main(int argc, char** argv) {
 		char* larg = "";
 		for (int i = 1; i < argc; i++) {
 			if (!strcmp(larg, "-w"))
-				winSizeX = atoi(argv[i]);
+				wsx = atoi(argv[i]);
 			if (!strcmp(larg, "-h"))
-				winSizeY = atoi(argv[i]);
+				wsy = atoi(argv[i]);
 			if (!strcmp(argv[i],"-flat"))
 				flat = 1;
 			if (!strcmp(argv[i],"-smooth"))
@@ -330,15 +324,15 @@ int main(int argc, char** argv) {
 
 
 	fflush(stdout);
-	imbuf = calloc(1,sizeof(PIXEL) * winSizeX * winSizeY);
+	imbuf = calloc(1,sizeof(PIXEL) * wsx * wsy);
 	// initialize TinyGL:
 	// unsigned int pitch;
 	//int mode;
 	ZBuffer* frameBuffer = NULL;
 	if(TGL_FEATURE_RENDER_BITS == 32)
-	 frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_RGBA, 0);
+	 frameBuffer = ZB_open(wsx, wsy, ZB_MODE_RGBA, 0);
 	else
-	 frameBuffer = ZB_open(winSizeX, winSizeY, ZB_MODE_5R6G5B, 0);
+	 frameBuffer = ZB_open(wsx, wsy, ZB_MODE_5R6G5B, 0);
 	if(!frameBuffer){printf("\nZB_open failed!");exit(1);}
 	glInit(frameBuffer);
 
@@ -350,7 +344,7 @@ int main(int argc, char** argv) {
 	printf("\nLicense string:\n%s",glGetString(GL_LICENSE));
 	// initialize GL:
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glViewport(0, 0, winSizeX, winSizeY);
+	glViewport(0, 0, wsx, wsy);
 if(flat)	glShadeModel(GL_FLAT); else glShadeModel(GL_SMOOTH);
 //TESTING BLENDING...
 	//glDisable(GL_DEPTH_TEST);
@@ -371,7 +365,7 @@ if(flat)	glShadeModel(GL_FLAT); else glShadeModel(GL_SMOOTH);
 		glDisable(GL_BLEND);
 		glDepthMask(GL_TRUE);
 	}
-	GLfloat h = (GLfloat)winSizeY / (GLfloat)winSizeX;
+	GLfloat h = (GLfloat)wsy / (GLfloat)wsx;
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	glFrustum(-1.0, 1.0, -h, h, 5.0, 60.0);
@@ -398,7 +392,7 @@ if(flat)	glShadeModel(GL_FLAT); else glShadeModel(GL_SMOOTH);
 		
 		// draw scene:
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		draw();
+		drawgear();
 		if(dotext){
 			glDrawText((unsigned char*)"RED text", 0, 0, 0xFF0000);
 
@@ -409,12 +403,12 @@ if(flat)	glShadeModel(GL_FLAT); else glShadeModel(GL_SMOOTH);
 		// swap buffers:
 		// Quickly convert all pixels to the correct format
 	
-		 ZB_copyFrameBuffer(frameBuffer, imbuf, winSizeX * sizeof(PIXEL));
+		 ZB_copyFrameBuffer(frameBuffer, imbuf, wsx * sizeof(PIXEL));
 		if(frames > 0) break;
 	}
 	if(TGL_FEATURE_RENDER_BITS == 32){ //very little conversion.
-		pbuf = malloc(3 * winSizeX * winSizeY);
-		for(int i = 0; i < winSizeX * winSizeY; i++){
+		pbuf = malloc(3 * wsx * wsy);
+		for(int i = 0; i < wsx * wsy; i++){
 			//pbuf[3*i+0] = (imbuf[i]&0xff0000)>>16;
 			//pbuf[3*i+1] = (imbuf[i]&0x00ff00)>>8;
 			//pbuf[3*i+2] = (imbuf[i]&0x0000ff);
@@ -422,18 +416,18 @@ if(flat)	glShadeModel(GL_FLAT); else glShadeModel(GL_SMOOTH);
 			pbuf[3*i+1] = GET_GREEN(imbuf[i]);
 			pbuf[3*i+2] = GET_BLUE(imbuf[i]);
 		}
-		stbi_write_png("render.png", winSizeX, winSizeY, 3, pbuf, 0);
+		stbi_write_png("render.png", wsx, wsy, 3, pbuf, 0);
 		free(imbuf);
 		free(pbuf);
 	} else if(TGL_FEATURE_RENDER_BITS == 16){
 		puts("\nTesting 16 bit rendering...\n");
-		pbuf = malloc(3 * winSizeX * winSizeY);
-		for(int i = 0; i < winSizeX * winSizeY; i++){
+		pbuf = malloc(3 * wsx * wsy);
+		for(int i = 0; i < wsx * wsy; i++){
 			pbuf[3*i+0] = GET_RED(imbuf[i]);
 			pbuf[3*i+1] = GET_GREEN(imbuf[i]);
 			pbuf[3*i+2] = GET_BLUE(imbuf[i]);
 		}
-		stbi_write_png("render.png", winSizeX, winSizeY, 3, pbuf, 0);
+		stbi_write_png("render.png", wsx, wsy, 3, pbuf, 0);
 		free(imbuf);
 		free(pbuf);
 	}
@@ -453,4 +447,170 @@ if(flat)	glShadeModel(GL_FLAT); else glShadeModel(GL_SMOOTH);
 	ZB_close(frameBuffer);
 	glClose();
 	return 0;
+}
+*/
+void
+usage(){
+	sysfatal("Usage: gears [-w width] [-h height] [-r rate] [-fsbnlpt]");
+}
+void
+eresized(int new){
+	if(new && getwindow(display, Refnone) < 0)
+		sysfatal("Resize");
+}
+void
+main(int argc, char** argv){
+	int wsx = 640;
+	int wsy = 480;
+	PIXEL* imbuf;
+	uchar* pbuf;
+	Event Event;
+	uint Etimer = 4;
+	ZBuffer *framebuffer;
+	GLfloat h;
+	Image* tmp, *wc, *bc;
+
+	uint flat, setenspec, dotext, blend, trate;
+	dotext = setenspec = 1;
+	trate = 20;
+	imbuf = nil;
+	pbuf = nil;
+	framebuffer = nil;
+	int i,k;
+
+	ARGBEGIN {
+		case 'w':
+			wsx = atoi(EARGF(usage));
+			break;
+		case 'r':
+			trate = atoi(EARGF(usage));
+			break;
+		case 'h':
+			wsy = atoi(EARGF(usage));
+			break;
+		case 'f':
+			flat = 1;
+			break;
+		case 'b':
+			blend = 1;
+			break;
+		case 'n':
+			setenspec = 0;
+			break;
+		case 'p':
+			++override_drawmodes;
+		case 'l':
+			++override_drawmodes;
+			break;
+		case 't':
+			dotext = 0;
+			break;
+		
+	}ARGEND
+
+	memimageinit();
+
+	if(initdraw(nil, nil, "GLXGears") < 0)
+		sysfatal("Initdraw");
+	if(getwindow(display, Refmesg) < 0)
+		sysfatal("getwindow");
+
+
+	if(!(framebuffer = alloczbuffer(Rect(0,0,wsx,wsy),ZB_MODE_RGBA)))
+		sysfatal("fballoc");
+	tmp = allocimage(display,Rect(0,0,wsx,wsy), ABGR32 ,0, DTransparent);
+	wc = allocimagemix(display, DWhite, DWhite);
+	bc = allocimagemix(display, DBlue, DBlue);
+
+	glInit((void*)framebuffer);
+	fprint(2,"\nVersion string:\n%s",glGetString(GL_VERSION));
+	fprint(2,"\nVendor string:\n%s",glGetString(GL_VENDOR));
+	fprint(2,"\nRenderer string:\n%s",glGetString(GL_RENDERER));
+	fprint(2,"\nExtensions string:\n%s",glGetString(GL_EXTENSIONS));
+	fprint(2,"\nLicense string:\n%s",glGetString(GL_LICENSE));
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glViewport(0, 0, wsx, wsy);
+	if(flat)
+		glShadeModel(GL_FLAT);
+	else
+		glShadeModel(GL_SMOOTH);
+	glEnable(GL_LIGHTING);
+	if(blend){
+		glDisable(GL_DEPTH_TEST);
+		glEnable(GL_BLEND);
+		glDepthMask(GL_FALSE);
+		glBlendFunc(GL_ONE_MINUS_SRC_COLOR, GL_DST_COLOR);
+		glBlendEquation(GL_FUNC_ADD);
+	}else{
+		glEnable(GL_DEPTH_TEST);
+		glDisable(GL_BLEND);
+		glDepthMask(GL_TRUE);
+	}
+	h = (GLfloat)wsy / (GLfloat)wsx;
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glFrustum(-1.0, 1.0, -h, h, 5.0, 60.0);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+	glTranslatef(0.0, 0.0, -45.0);
+	initScene();
+	if(setenspec)
+		glSetEnableSpecular(GL_TRUE);
+	else
+		glSetEnableSpecular(GL_FALSE);
+	/*Esoteric knowledge: window resizing with eresized() is a function of Emouse (not documented in manpage)*/
+	einit(Ekeyboard|Emouse);
+	etimer(Etimer, trate);
+	for(;;)
+		switch(event(&Event)){
+			case Ekeyboard:
+				switch(Event.kbdc){
+					case Kup:
+						view_rotx += 1.0;
+						break;
+					case Kdown:
+						view_rotx -=1.0;
+						break;
+					case Kright:
+						view_roty += 1.0;
+						break;
+					case Kleft:
+						view_roty -=1.0;
+						break;
+					case 'q':
+					case 'Q':
+					case Kdel:
+						exits(nil);
+		
+					default:
+						break;
+				}
+				break;
+			case 4:
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				drawgear();
+				if(dotext){
+					glDrawText((unsigned char*)"RED text", 0, 0, 0xFF0000FF);
+		
+					glDrawText((unsigned char*)"GREEN text", 0, 24, 0xFF00FF00);
+		
+					glDrawText((unsigned char*)"BLUE text", 0, 48, 0xFFFF0000);
+				}
+				// swap buffers:
+				// Quickly convert all pixels to the correct format
+			
+				//ZB_copyFrameBuffer(framebuffer, imbuf, wsx * sizeof(PIXEL));
+				loadimage(tmp, tmp->r, framebuffer->data->bdata,  Dx(framebuffer->r) * Dy(framebuffer->r) * framebuffer->depth);
+				draw(screen, screen->r, wc, nil, ZP);
+				draw(screen, screen->r, tmp, nil, ZP);
+				break;
+		}
+teardown:
+	free(imbuf);
+	// cleanup:
+	glDeleteList(gear1);
+	glDeleteList(gear2);
+	glDeleteList(gear3);
+	ZB_close(framebuffer);
+	glClose();
 }

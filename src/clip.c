@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "msghandling.h"
 #include "zgl.h"
 /* fill triangle profile */
@@ -92,7 +94,7 @@ void gl_draw_point(GLVertex* p0) {
 			gl_add_select(p0->zp.z, p0->zp.z);
 
 		} else if (c->render_mode == GL_FEEDBACK) {
-			gl_add_feedback(GL_POINT_TOKEN, p0, NULL, NULL, 0);
+			gl_add_feedback(GL_POINT_TOKEN, p0, nil, nil, 0);
 		} else
 #endif
 		{
@@ -156,7 +158,7 @@ void gl_draw_line(GLVertex* p1, GLVertex* p2) {
 		if (c->render_mode == GL_SELECT) {
 			gl_add_select1(p1->zp.z, p2->zp.z, p2->zp.z);
 		} else if (c->render_mode == GL_FEEDBACK) {
-			gl_add_feedback(GL_LINE_TOKEN, p1, p2, NULL, 0);
+			gl_add_feedback(GL_LINE_TOKEN, p1, p2, nil, 0);
 		} else
 #endif
 		{
@@ -190,7 +192,7 @@ void gl_draw_line(GLVertex* p1, GLVertex* p2) {
 			if (c->render_mode == GL_SELECT) {
 				gl_add_select1(q1.zp.z, q2.zp.z, q2.zp.z);
 			} else if (c->render_mode == GL_FEEDBACK) {
-				gl_add_feedback(GL_LINE_TOKEN, &q1, &q2, NULL, 0);
+				gl_add_feedback(GL_LINE_TOKEN, &q1, &q2, nil, 0);
 			} else
 #endif
 			{

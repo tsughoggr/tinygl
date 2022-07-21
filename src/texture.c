@@ -2,18 +2,20 @@
  * Texture Manager
  */
 
+#include <u.h>
+#include <libc.h>
 #include "zgl.h"
 
 static GLTexture* find_texture(GLint h) {
 	GLTexture* t;
 	GLContext* c = gl_get_context();
 	t = c->shared_state.texture_hash_table[h & TEXTURE_HASH_TABLE_MASK];
-	while (t != NULL) {
+	while (t != nil) {
 		if (t->handle == h)
 			return t;
 		t = t->next;
 	}
-	return NULL;
+	return nil;
 }
 
 GLboolean glAreTexturesResident(GLsizei n, const GLuint* textures, GLboolean* residences) {
@@ -46,7 +48,7 @@ void* glGetTexturePixmap(GLint text, GLint level, GLint* xsize, GLint* ysize) {
 #if TGL_FEATURE_ERROR_CHECK == 1
 	if (!(text >= 0 && level < MAX_TEXTURE_LEVELS))
 #define ERROR_FLAG GL_INVALID_ENUM
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 #else
 	/*assert(text >= 0 && level < MAX_TEXTURE_LEVELS);*/
@@ -55,10 +57,10 @@ void* glGetTexturePixmap(GLint text, GLint level, GLint* xsize, GLint* ysize) {
 	if (!tex)
 #if TGL_FEATURE_ERROR_CHECK == 1
 #define ERROR_FLAG GL_INVALID_ENUM
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 #else
-		return NULL;
+		return nil;
 #endif
 		*xsize = tex->images[level].xsize;
 	*ysize = tex->images[level].ysize;
@@ -69,13 +71,13 @@ static void free_texture(GLContext* c, GLint h) {
 	GLTexture *t, **ht;
 
 	t = find_texture(h);
-	if (t->prev == NULL) {
+	if (t->prev == nil) {
 		ht = &c->shared_state.texture_hash_table[t->handle & TEXTURE_HASH_TABLE_MASK];
 		*ht = t->next;
 	} else {
 		t->prev->next = t->next;
 	}
-	if (t->next != NULL)
+	if (t->next != nil)
 		t->next->prev = t->prev;
 
 	gl_free(t);
@@ -84,13 +86,13 @@ static void free_texture(GLContext* c, GLint h) {
 GLTexture* alloc_texture(GLint h) {
 	GLContext* c = gl_get_context();
 	GLTexture *t, **ht;
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 	t = gl_zalloc(sizeof(GLTexture));
 	if (!t)
 #if TGL_FEATURE_ERROR_CHECK == 1
 #define ERROR_FLAG GL_OUT_OF_MEMORY
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 #else
 		gl_fatal_error("GL_OUT_OF_MEMORY");
@@ -99,8 +101,8 @@ GLTexture* alloc_texture(GLint h) {
 		ht = &c->shared_state.texture_hash_table[h & TEXTURE_HASH_TABLE_MASK];
 
 	t->next = *ht;
-	t->prev = NULL;
-	if (t->next != NULL)
+	t->prev = nil;
+	if (t->next != nil)
 		t->next->prev = t;
 	*ht = t;
 
@@ -124,7 +126,7 @@ void glGenTextures(GLint n, GLuint* textures) {
 	max = 0;
 	for (i = 0; i < TEXTURE_HASH_TABLE_SIZE; i++) {
 		t = c->shared_state.texture_hash_table[i];
-		while (t != NULL) {
+		while (t != nil) {
 			if (t->handle > max)
 				max = t->handle;
 			t = t->next;
@@ -142,7 +144,7 @@ void glDeleteTextures(GLint n, const GLuint* textures) {
 #include "error_check.h"
 	for (i = 0; i < n; i++) {
 		t = find_texture(textures[i]);
-		if (t != NULL && t != 0) {
+		if (t != nil && t != 0) {
 			if (t == c->current_texture) {
 				glBindTexture(GL_TEXTURE_2D, 0);
 #include "error_check.h"
@@ -165,11 +167,11 @@ void glopBindTexture(GLParam* p) {
 	
 #endif
 		t = find_texture(texture);
-	if (t == NULL) {
+	if (t == nil) {
 		t = alloc_texture(texture);
 #include "error_check.h"
 	}
-	if (t == NULL) { 
+	if (t == nil) { 
 #if TGL_FEATURE_ERROR_CHECK == 1
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -216,7 +218,7 @@ void glopCopyTexImage2D(GLParam* p) {
 	GLContext* c = gl_get_context();
 	y -= h;
 
-	if (c->readbuffer != GL_FRONT || c->current_texture == NULL || target != GL_TEXTURE_2D || border != 0 ||
+	if (c->readbuffer != GL_FRONT || c->current_texture == nil || target != GL_TEXTURE_2D || border != 0 ||
 		w != TGL_FEATURE_TEXTURE_DIM || /*TODO Implement image interp*/
 		h != TGL_FEATURE_TEXTURE_DIM) {
 #if TGL_FEATURE_ERROR_CHECK == 1
@@ -264,20 +266,20 @@ void glopTexImage1D(GLParam* p) {
 	GLContext* c = gl_get_context();
 	{
 #if TGL_FEATURE_ERROR_CHECK == 1
-		if (!(c->current_texture != NULL && target == GL_TEXTURE_1D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
+		if (!(c->current_texture != nil && target == GL_TEXTURE_1D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
 			  type == GL_UNSIGNED_BYTE))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 
 #else
-		if (!(c->current_texture != NULL && target == GL_TEXTURE_1D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
+		if (!(c->current_texture != nil && target == GL_TEXTURE_1D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
 			  type == GL_UNSIGNED_BYTE))
 			gl_fatal_error("glTexImage2D: combination of parameters not handled!!");
 #endif
 	}
 	if (width != TGL_FEATURE_TEXTURE_DIM || height != TGL_FEATURE_TEXTURE_DIM) {
 		pixels1 = gl_malloc(TGL_FEATURE_TEXTURE_DIM * TGL_FEATURE_TEXTURE_DIM * 3); /* GUARDED*/
-		if (pixels1 == NULL) {
+		if (pixels1 == nil) {
 #if TGL_FEATURE_ERROR_CHECK == 1
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"
@@ -324,20 +326,20 @@ void glopTexImage2D(GLParam* p) {
 	GLContext* c = gl_get_context();
 	{
 #if TGL_FEATURE_ERROR_CHECK == 1
-		if (!(c->current_texture != NULL && target == GL_TEXTURE_2D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
+		if (!(c->current_texture != nil && target == GL_TEXTURE_2D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
 			  type == GL_UNSIGNED_BYTE))
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 
 #else
-		if (!(c->current_texture != NULL && target == GL_TEXTURE_2D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
+		if (!(c->current_texture != nil && target == GL_TEXTURE_2D && level == 0 && components == 3 && border == 0 && format == GL_RGB &&
 			  type == GL_UNSIGNED_BYTE))
 			gl_fatal_error("glTexImage2D: combination of parameters not handled!!");
 #endif
 	}
 	if (width != TGL_FEATURE_TEXTURE_DIM || height != TGL_FEATURE_TEXTURE_DIM) {
 		pixels1 = gl_malloc(TGL_FEATURE_TEXTURE_DIM * TGL_FEATURE_TEXTURE_DIM * 3); /* GUARDED*/
-		if (pixels1 == NULL) {
+		if (pixels1 == nil) {
 #if TGL_FEATURE_ERROR_CHECK == 1
 #define ERROR_FLAG GL_OUT_OF_MEMORY
 #include "error_check.h"

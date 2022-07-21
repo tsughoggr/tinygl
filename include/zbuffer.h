@@ -246,7 +246,7 @@ typedef GLushort PIXEL;
 typedef struct {
 
     
-    
+    Memimage;
     GLushort *zbuf;
     PIXEL *pbuf;
     PIXEL *current_texture;
@@ -291,6 +291,9 @@ ZBuffer *ZB_open(int xsize,int ysize,int mode,
 
 		 void *frame_buffer);
 
+ZBuffer* alloczbufferd(Rectangle, ulong, Memdata*);
+ZBuffer* alloczbuffer(Rectangle, GLint);
+void freezbuffer(ZBuffer*);
 
 void ZB_close(ZBuffer *zb);
 
@@ -347,16 +350,9 @@ typedef void (*ZB_fillTriangleFunc)(ZBuffer  *,
 	    ZBufferPoint *,ZBufferPoint *,ZBufferPoint *);
 
 /* memory.c */
-#if TGL_FEATURE_CUSTOM_MALLOC == 1
 void gl_free(void *p);
 void *gl_malloc(GLint size);
 void *gl_zalloc(GLint size);
-#else
-#include<string.h>
-#include<stdlib.h>
-static void gl_free(void* p) { free(p); }
-static void* gl_malloc(GLint size) { return malloc(size); }
-static void* gl_zalloc(GLint size) { return calloc(1, size); }
-#endif
+
 
 #endif /* _tgl_zbuffer_h_ */

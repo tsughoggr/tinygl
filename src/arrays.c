@@ -1,3 +1,5 @@
+#include <u.h>
+#include <libc.h>
 #include "zgl.h"
 
 #include "msghandling.h"
@@ -20,24 +22,24 @@ static GLint free_buffer(GLint handle) {
 			gl_free(s->buffers[handle]->data); 
 			
 			if (c->vertex_array == d) {
-				c->vertex_array = NULL;
+				c->vertex_array = nil;
 				c->client_states &= ~VERTEX_ARRAY;
 			}
 			if (c->color_array == d) {
-				c->color_array = NULL;
+				c->color_array = nil;
 				c->client_states &= ~COLOR_ARRAY;
 			}
 			if (c->normal_array == d) {
-				c->normal_array = NULL;
+				c->normal_array = nil;
 				c->client_states &= ~NORMAL_ARRAY;
 			}
 			if (c->texcoord_array == d) {
-				c->texcoord_array = NULL;
+				c->texcoord_array = nil;
 				c->client_states &= ~TEXCOORD_ARRAY;
 			}
 		}
 		gl_free(s->buffers[handle]); 
-		s->buffers[handle] = NULL;   
+		s->buffers[handle] = nil;   
 		return 0;
 	} else {
 		return 0;
@@ -65,7 +67,7 @@ static GLBuffer* get_buffer(GLint handle) {
 	c = gl_get_context();
 	s = &(c->shared_state);
 	if (handle == 0 || handle > MAX_BUFFERS)
-		return NULL;
+		return nil;
 	handle--;
 	return s->buffers[handle];
 }
@@ -89,7 +91,7 @@ static GLint create_buffer(GLint handle) {
 		gl_fatal_error("GL_OUT_OF_MEMORY");
 #endif
 	}
-	s->buffers[handle]->data = NULL;
+	s->buffers[handle]->data = nil;
 	s->buffers[handle]->size = 0;
 	return 0;
 }
@@ -161,25 +163,25 @@ void glBindBufferAsArray(GLenum target, GLuint buffer,
 		switch (target) {
 		case GL_VERTEX_BUFFER:
 			glDisableClientState(GL_VERTEX_ARRAY);
-			glVertexPointer(size, type, stride, NULL);
+			glVertexPointer(size, type, stride, nil);
 			c->boundvertexbuffer = buffer;
 			return;
 			break;
 		case GL_NORMAL_BUFFER:
 			glDisableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(type, stride, NULL);
+			glNormalPointer(type, stride, nil);
 			c->boundnormalbuffer = buffer;
 			return;
 			break;
 		case GL_COLOR_BUFFER:
 			glDisableClientState(GL_COLOR_ARRAY);
-			glColorPointer(size, type, stride, NULL);
+			glColorPointer(size, type, stride, nil);
 			c->boundcolorbuffer = buffer;
 			return;
 			break;
 		case GL_TEXTURE_COORD_BUFFER:
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(size, type, stride, NULL);
+			glTexCoordPointer(size, type, stride, nil);
 			c->boundtexcoordbuffer = buffer;
 			return;
 			break;
@@ -196,7 +198,7 @@ void glBindBufferAsArray(GLenum target, GLuint buffer,
 #endif
 	}
 	GLBuffer* buf = c->shared_state.buffers[buffer - 1];
-	if (!buf || (buf->data == NULL) || (buf->size == 0)) {
+	if (!buf || (buf->data == nil) || (buf->size == 0)) {
 #if TGL_FEATURE_ERROR_CHECK == 1
 #define ERROR_FLAG GL_INVALID_OPERATION
 #include "error_check.h"
@@ -235,7 +237,7 @@ void glBindBufferAsArray(GLenum target, GLuint buffer,
 
 void* glMapBuffer(GLenum target, GLenum access) {
 	GLContext* c = gl_get_context();
-#define RETVAL NULL
+#define RETVAL nil
 #include "error_check.h"
 	GLint handle = 0;
 	if (target == GL_ARRAY_BUFFER)
@@ -253,11 +255,11 @@ void* glMapBuffer(GLenum target, GLenum access) {
 			return c->shared_state.buffers[handle - 1]->data;
 	}
 #if TGL_FEATURE_ERROR_CHECK == 1
-#define RETVAL NULL
+#define RETVAL nil
 #define ERROR_FLAG GL_INVALID_ENUM
 #include "error_check.h"
 #else
-	return NULL;
+	return nil;
 #endif
 }
 void glBufferData(GLenum target, GLsizei size, const void* data,
@@ -266,7 +268,7 @@ void glBufferData(GLenum target, GLsizei size, const void* data,
 	GLContext* c = gl_get_context();
 #include "error_check.h"
 	GLint handle = 0;
-	GLBuffer* buf = NULL;
+	GLBuffer* buf = nil;
 	if (target == GL_ARRAY_BUFFER)
 		handle = c->boundarraybuffer;
 	if (target == GL_VERTEX_BUFFER)
@@ -289,7 +291,7 @@ void glBufferData(GLenum target, GLsizei size, const void* data,
 	}
 	if (buf->data)
 		gl_free(buf->data);
-	buf->data = NULL;
+	buf->data = nil;
 	buf->size = 0;
 	if (size == 0)
 		return; 
@@ -303,7 +305,7 @@ void glBufferData(GLenum target, GLsizei size, const void* data,
 		gl_fatal_error("GL_OUT_OF_MEMORY");
 #endif
 	}
-	if (data != NULL)
+	if (data != nil)
 		memcpy(buf->data, data, size);
 }
 
