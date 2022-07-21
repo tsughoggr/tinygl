@@ -1,0 +1,47 @@
+</$objtype/mkfile
+OFILES= \
+	api.$O \
+	list.$O \
+	vertex.$O \
+	init.$O \
+	matrix.$O \
+	texture.$O \
+	misc.$O \
+	clear.$O \
+	light.$O \
+	clip.$O \
+	select.$O \
+	get.$O \
+	zbuffer.$O \
+	zline.$O \
+	ztriangle.$O \
+	zmath.$O \
+	image_util.$O \
+	msghandling.$O \
+	arrays.$O \
+	specbuf.$O \
+	memory.$O \
+	ztext.$O \
+	zraster.$O \
+	accum.$O \
+	zpostprocess.$O
+
+LIB=/$objtype/lib/libtinygl.a
+
+HEAD=/sys/include/tinygl.h
+
+
+install:V: $OFILES $HEAD
+	ar vu $LIB $OFILES
+	dircp ../man /sys/man/
+
+all:V: $OFILES $HEAD
+
+%.$O:	%.c
+	cpp $stem.c > $stem.cpp
+	$CC -o $stem.$O $stem.cpp
+
+$HEAD:V:
+	cp ../include/tinygl.h $HEAD
+clean:V:
+	rm -f *.[$OS] [$OS].out *.cpp $LIB $HEAD /sys/man/2/zbuffer /sys/man/2/tinygl
