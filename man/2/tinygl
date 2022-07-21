@@ -1,0 +1,591 @@
+.TH TINYGL 2
+.SH NAME
+glEnable, glDisable, glShadeModel, glCullFace, glPolygonMode, glBegin, glEnd, glRectf, glDrawBuffer, glReadBuffer, glReadPixels, glDrawArrays, glSetEnableSpecular, glGetTexturePixmap, glDrawText, glTextSize, glPlotPixel, glVertex2f, glVertex3f, glVertex4f, glColor3f, glColor4f, glNormal3f, glTexCoord1f, glTexCoord2f, glTexCoord3f, glTexCoord4f, glEdgeFlag, glMatrixMode, glLoadMatrixf, glLoadIdentity, glMultMatrixf, glPushMatrix, glPopMatrix, glRotatef, glTranslatef, glScalef, glViewport, glFrustum, glGenLists, glIsList, glNewList, glEndList, glCallList, glCallLists, glListBase, glDeleteList, glDeleteLists, glClear, glClearColor, glClearDepth, glFeedbackBuffer, glPassThrough, glRenderMode, glSelectBuffer, glInitNames, glPushName, glPopName, glLoadName, glGenTextures, glDeleteTextures, glBindTexture, glTexImage2D, glTexImage1D, glCopyTexImage2D, glTexEnvi, glTexParameteri, glAreTexturesResident, glIsTexture, glMaterialfv, glMaterialf, glColorMaterial, glLightfv, glLightf, glLightModeli, glLightModelfv, glFlush, glFinish, glHint, glGetIntegerv, glGetFloatv, glGetString, glGetError, glFrontFace, glEnableClientState, glDisableClientState, glArrayElement, glVertexPointer, glColorPointer, glNormalPointer, glTexCoordPointer, glGenBuffers, glDeleteBuffers, glBindBuffer, glIsBuffer, glMapBuffer, glBufferData, glBindBufferAsArray, glPolygonOffset, glBlendFunc, glBlendEquation, glDepthMask, glPointSize, glRasterPos2f, glRasterPos3f, glRasterPos4f, glRasterPos2fv, glRasterPos3fv, glRasterPos4fv, glDrawPixels, glPixelZoom, glPostProcess, glPolygonStipple, glDebug, glInit, glClose \- TinyGL functions
+.de PB
+.PP
+.ft L
+.nf
+..
+.SH SYNOPSIS
+.de PB
+.PP
+.ft L
+.nf
+..
+.PB
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#include <memdraw.h>
+#include <tinygl.h>
+.PB
+typedef void		GLvoid;
+typedef unsigned char	GLboolean;
+typedef signed char	GLbyte;		/* 1-byte signed */
+typedef short		GLshort;	/* 2-byte signed */
+typedef int		GLint;		/* 4-byte signed */
+typedef GLint	GLenum; /* Same as GLint */
+typedef unsigned char	GLubyte;	/* 1-byte unsigned */
+typedef unsigned short	GLushort;	/* 2-byte unsigned */
+typedef unsigned int	GLuint;		/* 4-byte unsigned */
+typedef float		GLfloat;	/* single precision float */
+typedef double		GLdouble;	/* double precision float */
+typedef GLint 		GLsizei; /* Same as GLint */
+.PB
+void glEnable(GLint code);
+.PB
+void glDisable(GLint code);
+.PB
+void glShadeModel(GLint mode);
+.PB
+void glCullFace(GLint mode);
+.PB
+void glPolygonMode(GLint face,GLint mode);
+.PB
+void glBegin(GLint type);
+.PB
+void glEnd(void);
+.PB
+void glRectf(GLfloat x1, GLfloat y1, GLfloat x2, GLfloat y2);
+.PB
+void glDrawBuffer(GLenum mode);
+.PB
+void glReadBuffer(GLenum mode);
+.PB
+void glReadPixels(	GLint x, GLint y, GLsizei width, GLsizei height, GLenum format, GLenum type, void * data);
+.PB
+void glDrawArrays(	GLenum mode, GLint first,GLsizei count);
+.PB
+void glSetEnableSpecular(GLint s); 
+.PB
+void* glGetTexturePixmap(GLint text, GLint level, GLint* xsize, GLint* ysize); 
+.PB
+void glDrawText(const GLubyte* text, GLint x, GLint y, GLuint pixel); 
+.PB
+void glTextSize(GLTEXTSIZE mode); 
+.PB
+void glPlotPixel(GLint x, GLint y, GLuint pixel); 
+.PB
+void glVertex2f(GLfloat ,GLfloat);
+.PB
+void glVertex2d(GLdouble ,GLdouble);
+.PB
+void glVertex2fv(GLfloat *);
+.PB
+void glVertex2dv(GLdouble *);
+.PB
+void glVertex3f(GLfloat ,GLfloat ,GLfloat);
+.PB
+void glVertex3d(GLdouble ,GLdouble ,GLdouble);
+.PB
+void glVertex3fv(GLfloat *);
+.PB
+void glVertex3dv(GLdouble *);
+.PB
+void glVertex4f(GLfloat ,GLfloat ,GLfloat, GLfloat );
+.PB
+void glVertex4d(GLdouble ,GLdouble ,GLdouble, GLdouble );
+.PB
+void glVertex4fv(GLfloat *);
+.PB
+void glVertex4dv(GLdouble *);
+.PB
+void glColor3f(GLfloat ,GLfloat ,GLfloat);
+.PB
+void glColor3d(GLdouble ,GLdouble ,GLdouble);
+.PB
+void glColor3fv(GLfloat *);
+.PB
+void glColor3dv(GLdouble *);
+.PB
+void glColor4f(GLfloat ,GLfloat ,GLfloat, GLfloat );
+.PB
+void glColor4d(GLdouble ,GLdouble ,GLdouble, GLdouble );
+.PB
+void glColor4fv(GLfloat *);
+.PB
+void glColor4dv(GLdouble *);
+.PB
+void glNormal3f(GLfloat ,GLfloat ,GLfloat);
+.PB
+void glNormal3d(GLdouble ,GLdouble ,GLdouble);
+.PB
+void glNormal3fv(GLfloat *);
+.PB
+void glNormal3dv(GLdouble *);
+.PB
+void glTexCoord1f(GLfloat);
+.PB
+void glTexCoord1d(GLdouble);
+.PB
+void glTexCoord1fv(GLfloat *);
+.PB
+void glTexCoord1dv(GLdouble *);
+.PB
+void glTexCoord2f(GLfloat ,GLfloat);
+.PB
+void glTexCoord2d(GLdouble ,GLdouble);
+.PB
+void glTexCoord2fv(GLfloat *);
+.PB
+void glTexCoord2dv(GLdouble *);
+.PB
+void glTexCoord3f(GLfloat ,GLfloat ,GLfloat);
+.PB
+void glTexCoord3d(GLdouble ,GLdouble ,GLdouble);
+.PB
+void glTexCoord3fv(GLfloat *);
+.PB
+void glTexCoord3dv(GLdouble *);
+.PB
+void glTexCoord4f(GLfloat ,GLfloat ,GLfloat, GLfloat );
+.PB
+void glTexCoord4d(GLdouble ,GLdouble ,GLdouble, GLdouble );
+.PB
+void glTexCoord4fv(GLfloat *);
+.PB
+void glTexCoord4dv(GLdouble *);
+.PB
+void glEdgeFlag(GLint flag);
+.PB
+void glMatrixMode(GLint mode);
+.PB
+void glLoadMatrixf(const GLfloat *m);
+.PB
+void glLoadIdentity(void);
+.PB
+void glMultMatrixf(const GLfloat *m);
+.PB
+void glPushMatrix(void);
+.PB
+void glPopMatrix(void);
+.PB
+void glRotatef(GLfloat angle, GLfloat x, GLfloat y, GLfloat z);
+.PB
+void glTranslatef(GLfloat x, GLfloat y, GLfloat z);
+.PB
+void glScalef(GLfloat x,GLfloat y,GLfloat z);
+.PB
+void glViewport(GLint x,GLint y,GLint width,GLint height);
+.PB
+void glFrustum(GLdouble left,GLdouble right,GLdouble bottom,GLdouble top, GLdouble near,GLdouble far);
+.PB
+GLuint glGenLists(GLint range);
+.PB
+GLint glIsList(GLuint list);
+.PB
+void glNewList(GLuint list,GLint mode);
+.PB
+void glEndList(void);
+.PB
+void glCallList(GLuint list);
+.PB
+void glCallLists(	GLsizei n, GLenum type,const GLuint* lists);
+.PB
+void glListBase(GLint n);
+.PB
+void glDeleteList(GLuint list);
+.PB
+void glDeleteLists(GLuint list, GLuint range);
+.PB
+void glClear(GLint mask);
+.PB
+void glClearColor(GLfloat r,GLfloat g,GLfloat b,GLfloat a);
+.PB
+void glClearDepth(GLdouble depth);
+.PB
+void glFeedbackBuffer(GLint size, GLenum type, GLfloat* buf);
+.PB
+void glPassThrough(GLfloat token);
+.PB
+GLint glRenderMode(GLint mode);
+.PB
+void glSelectBuffer(GLint size,GLuint *buf);
+.PB
+void glInitNames(void);
+.PB
+void glPushName(GLuint name);
+.PB
+void glPopName(void);
+.PB
+void glLoadName(GLuint name);
+.PB
+void glGenTextures(GLint n, GLuint *textures);
+.PB
+void glDeleteTextures(GLint n, const GLuint *textures);
+.PB
+void glBindTexture(GLint target,GLint texture);
+.PB
+void glTexImage2D( GLint target, GLint level, GLint components,
+	GLint width, GLint height, GLint border,GLint format, GLint type, void *pixels);
+.PB
+void glTexImage1D( GLint target, GLint level, GLint components,
+	GLint width, GLint border,GLint format, GLint type, void *pixels);
+.PB
+void glCopyTexImage2D(	GLenum target, GLint level, GLenum internalformat,
+	GLint x, GLint y, GLsizei width,	GLsizei height, GLint border);
+.PB
+void glTexEnvi(GLint target,GLint pname,GLint param);
+.PB
+void glTexParameteri(GLint target,GLint pname,GLint param);
+.PB
+GLboolean glAreTexturesResident(GLsizei n, const GLuint * textures, GLboolean * residences);
+.PB
+GLboolean glIsTexture(	GLuint texture);
+.PB
+void glMaterialfv(GLint mode,GLint type,GLfloat *v);
+.PB
+void glMaterialf(GLint mode,GLint type,GLfloat v);
+.PB
+void glColorMaterial(GLint mode,GLint type);
+.PB
+void glLightfv(GLint light,GLint type,GLfloat *v);
+.PB
+void glLightf(GLint light,GLint type,GLfloat v);
+.PB
+void glLightModeli(GLint pname,GLint param);
+.PB
+void glLightModelfv(GLint pname,GLfloat *param);
+.PB
+void glFlush(void);
+.PB
+void glFinish(void);
+.PB
+void glHint(GLint target,GLint mode);
+.PB
+void glGetIntegerv(GLint pname,GLint *params);
+.PB
+void glGetFloatv(GLint pname, GLfloat *v);
+.PB
+const GLubyte* glGetString(GLenum name);
+.PB
+GLenum glGetError();
+.PB
+void glFrontFace(GLint mode);
+.PB
+void glEnableClientState(GLenum array);
+.PB
+void glDisableClientState(GLenum array);
+.PB
+void glArrayElement(GLint i);
+.PB
+void glVertexPointer(GLint size, GLenum type, GLsizei stride,const GLvoid *pointer);
+.PB
+void glColorPointer(GLint size, GLenum type, GLsizei stride,const GLvoid *pointer);
+.PB
+void glNormalPointer(GLenum type, GLsizei stride,const GLvoid *pointer);
+.PB
+void glTexCoordPointer(GLint size, GLenum type, GLsizei stride,const GLvoid *pointer);
+.PB
+void glGenBuffers(	GLsizei n,GLuint * buffers);
+.PB
+void glDeleteBuffers(	GLsizei n, 	const GLuint * buffers);
+.PB
+void glBindBuffer(	GLenum target,GLuint buffer);
+.PB
+GLboolean glIsBuffer(	GLuint buffer);
+.PB
+void *glMapBuffer(	GLenum target, 	GLenum access);
+.PB
+void glBufferData(	GLenum target, 	GLsizei size, 	const void * data, 	GLenum usage);
+.PB
+void glBindBufferAsArray(GLenum target, GLuint buffer, GLenum type, GLint size, GLint stride);
+.PB
+void glPolygonOffset(GLfloat factor, GLfloat units);
+.PB
+void glBlendFunc(GLint, GLint);
+.PB
+void glBlendEquation(GLenum mode);
+.PB
+void glDepthMask(GLint);
+.PB
+void glPointSize(GLfloat);
+.PB
+void glRasterPos2f(GLfloat, GLfloat);
+.PB
+void glRasterPos3f(GLfloat, GLfloat, GLfloat);
+.PB
+void glRasterPos4f(GLfloat, GLfloat, GLfloat, GLfloat);
+.PB
+void glRasterPos2fv(GLfloat* v);
+.PB
+void glRasterPos3fv(GLfloat* v);
+.PB
+void glRasterPos4fv(GLfloat* v);
+.PB
+void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, void* data);
+.PB
+void glPixelZoom(GLfloat x, GLfloat y);
+.PB
+void glPostProcess(GLuint (*postprocess)(GLint x, GLint y, GLuint pixel, GLushort z)); 
+.PB
+void glPolygonStipple(void* a);void glDebug(GLint mode);void glInit(void *zbuffer);
+.PB
+void glClose(void);
+.SH DESCRIPTION
+The 
+.B Tinygl 
+interface implements the OpenGL 1.1 specification for 3D vector graphics.
+.TP
+\f5glBegin(\f2code\f5)
+Begins a new primitive or set of primitives and sets the current global GL context's drawing mode to one of 
+.I GL_POINTS, GL_LINES, GL_LINE_LOOP, GL_LINE_STRIP, GL_POLYGON, GL_TRIANGLES, GL_TRIANGLE_FAN, GL_TRIANGLE_STRIP, GL_QUADS, GL_QUAD_STRIP 
+subsequent calls to drawing functions will behave as described by the set flag. The corresponding 
+.I glEnd() 
+function will terminate the primative.
+.TP
+\f5glEnable(\f2code\f5)
+.I glEnable 
+and 
+.I glDisable 
+enable and disable the server capability described by 
+.I code. 
+Which should be one of 
+.I GL_CULL_FACE, GL_LIGHTING, GL_COLOR_MATERIAL, GL_TEXTURE_2D, GL_BLEND, GL_NORMALIZE, GL_DEPTH_TEST, GL_POLYGON_OFFSET_FILL, GL_POLYGON_STIPPLE, GL_POLYGON_OFFSET_POINT, 
+or 
+.I GL_POLYGON_OFFSET_LINE. 
+.TP
+\f5glCullFace(\f2mode\f5)
+Determines which facets to cull based on 
+.I mode, 
+one of 
+.I GL_FRONT, GL_BACK, GL_FRONT_AND_BACK. 
+If 
+.I GL_CULL_FACE 
+is enabled the facets will not be drawn. In front and back mode only vertices and lines will be drawn.
+.TP
+\f5glShadeModel(\f2mode\f5)
+Sets the shading mode, one of 
+.I GL_SMOOTH 
+or
+.I GL_FLAT 
+.TP
+\f5glPolygonMode(\f2face\fP,\f2mode\f5)
+Sets the drawing mode for the given face. 
+.I Face 
+is one of 
+.I GL_BACK, GL_FRONT, GL_FRONT_AND_BACK 
+and 
+.I mode 
+is one of 
+.I GL_POINT, GL_LINE, GL_FILL
+.TP
+\f5glRectf(\f2x1\fP,\f2y1\fP,\f2x2\fP,\f2y2\f5)
+Draws a rectangle between given points, cannot be used in between 
+.I glBegin 
+and 
+.I glEnd 
+directives.
+.TP
+\f5glDrawBuffer(\f2mode\f5)
+Sets the color buffer to draw to in the current context, the corresponding
+.I glReadBuffer(mode) 
+sets color buffer to read from in the current context. 
+.I Mode 
+in both cases is one of 
+.I GL_FRONT 
+or 
+.I GL_NONE
+.TP
+\f5glReadPixels(\f2x\fP,\f2y\fP,\f2width\fP,\f2height\fP,\f2format\fP,\f2type\fP,\f2data\f5)
+Reads pixels from the framebuffer into client memory, starting at 
+.I x,y 
+to the point
+.I x+width, y+height 
+in the framebuffer. The 
+.I format 
+is one of 
+.I GL_RGBA, GL_RGB, GL_DEPTH_COMPONENT, GL_UNSIGNED_INT, GL_UNSIGNED_INT_8_8_8_8, GL_UNSIGNED_SHORT 
+or 
+.I GL_UNSIGNED_SHORT_5_6_5 
+into the memory pointed to by 
+.I data.
+.TP
+\f5glDrawArrays(\f2mode\fP,\f2first\fP,\f2count\f5)
+Calls 
+.I glBegin 
+and 
+.I glEnd 
+with the given 
+.I mode 
+and draws arrays from the
+.I first 
+to 
+.I last 
+element in the array.
+.TP
+\f5glBindBufferAsArray(\f2target\fP,\f2buffer\fP,\f2type\fP,\f2size\fP,\f2stride\f5)
+Binds the given server side buffer.
+.TP
+\f5glDrawText(\f2text\fP,\f2x\fP,\f2y\fP,\f2pixel\f5)
+Draws the UTF-8 text string given by 
+.I text 
+onto the canvas at 
+.I x,y 
+in the color described by 
+.I pixel.
+glTextSize sets the text size to one of 
+.I 	GL_TEXT_SIZE8x8, GL_TEXT_SIZE16x16, GL_TEXT_SIZE24x24, GL_TEXT_SIZE32x32, GL_TEXT_SIZE40x40, GL_TEXT_SIZE48x48, GL_TEXT_SIZE56x56, GL_TEXT_SIZE64x64, GL_TEXT_SIZE72x72, GL_TEXT_SIZE80x80, GL_TEXT_SIZE88x88, GL_TEXT_SIZE96x96, GL_TEXT_SIZE104x104, GL_TEXT_SIZE112x112, GL_TEXT_SIZE120x120
+or
+.I GL_TEXT_SIZE128x128
+.TP
+\f5glVertex4f(\f2x\fP,\f2y\fP,\f2z\fP,\f2w\f5)
+The glVertex, glColor, and glTexCoord family of functions update corresponding 2-4 dimensional objects in the current context. The 
+.I v 
+variants of the functions allow for a pointer to an array of the values.
+.TP
+\f5glMatrixMode(\f2mode\f5)
+Sets the current matrix on which subsequent matrix operations will be preformed to one of 
+.I GL_TEXTURE, GL_PROJECTION, GL_MODELVIEW.
+.I glPushMatrix 
+and 
+.I glPopMatrix 
+push and pop the current matrix onto the matrix stack. 
+.I glLoadMatrixf, glLoadIdentity, glMultMatrixf 
+load into the current matrix the values stored in 
+.I m, 
+replace the current matrix with it's identity and multiply the current matrix by the valeus in 
+.I m 
+respectively. 
+.I glRotatef 
+rotates the current matrix by 
+.I angle 
+degrees rightward about the unit vector 
+.I <x,y,z>. glTranslatef 
+and 
+.I glScalef 
+translate and scale the current matrix by the corresponding unit vectors.
+.TP
+\f5glGenLists(\f2range\f5)
+Allocates an array of lists of calls of size 
+.I range. 
+Lists in this range can be initialized using 
+.I glNewList 
+in 
+.I mode 
+similar to that in 
+.I glBegin. 
+Subsequent calls to glNewList until 
+.I glEndList 
+is called will be added to the list to be called by 
+.I glCallList or glCallLists.
+.TP
+\f5glClear(\f2mask\fP)
+Clears the current buffer with the clear color 
+.I mask. glClearColor 
+clears the buffer with the color given by it's 
+.I <r,g,b,a> 
+vector components. 
+.I glClearDepth 
+sets the depth to which the depth buffer should be cleared clamped to 1.0.
+.TP 
+\f5glGenTextures(\f2n\fP,\f2*textures\f5)
+Generates a list of 
+.I n 
+textures in the array 
+.I textures 
+to be used for subsequent texture operations, the names populating this list will not be reused until they are removed with 
+.I glDeleteTextures. 
+.TP
+\f5glBindTexture(\f2target\fP,\f2texture\f5)
+Binds the texture given by name 
+.I texture 
+allocated by glGenTextures to the 
+.I target 
+which must be one of 
+.I GL_TEXTURE_1D, GL_TEXTURE_2D, GL_TEXTURE_3D or GL_TEXTURE_CUBE_MAP. 
+.TP
+\f5glTexImage1D(\f2target\fP,\f2level\fP,\f2components\fP,\f2width\fP,\f2format\fP,\f2type\fP,\f2pixels\f5)
+The glTexImage1D and glTexImage2D functions associate the buffer 
+.I pixels 
+with the current context. The 
+.I target 
+argument determines the dimensionality and should be either 
+.I GL_TEXTURE_1D 
+or 
+.I GL_TEXTURE_2D. 
+The 
+.I level 
+parameter specifies the level of detail setting, from the base image at 0 to MAX_TEXTURE_LEVELS mipmap. The 
+.I internalformat 
+parameter is a noop. The 
+.I border 
+parameter specifies the border width and should be 1 or 0. 
+.I glCopyTexImage2D 
+operates similarly but copies from the GL_READ_BUFFER instead of a provided image.
+.TP
+\f5glMaterialf(\f2mode\fP,\f2type\fP,\f2v\f5)
+The material and light functions determine the behavior of light on the current surface.  For the 
+.I glMaterial 
+functions the 
+.I mode 
+parameter should be one of 
+.I FRONT, BACK or FRONT_AND_BACK. 
+The 
+.I light 
+parameter in the lighting functions should be between 
+.I GL_LIGHT0 
+and 
+.I MAX_LIGHTS.
+The 
+.I glMaterialfv 
+and 
+.I glLightfv 
+functions must be used with 
+.I mode 
+directives which require multiple parameters. The 
+.I glLightModel 
+functions operate on the same values but on the scene's lighting.
+.RS
+.EX
+
+.B Material
+.2C
+AMBIENT 4
+DIFFUSE 4
+AMBIENT_AND_DIFFUSE 4
+SPECULAR 4
+EMISSION 4
+SHININESS 1
+COLOR_INDEXES 3
+.1C
+.B Light
+.2C
+AMBIENT 4
+DIFFUSE 4
+SPECULAR 4
+POSITION 4
+SPOT_DIRECTION 3
+SPOT_EXPONENT 1
+SPOT_CUTOFF 1
+CONSTANT_ATTENUATION 1
+LINEAR_ATTENUATION 1
+QUADRATIC_ATTENUATION 1
+.1C
+.RE
+.TP
+\f5glColorMaterial(\f2mode\fP,\f2type\f5)
+Assigns the material property 
+.I mode 
+assigning the face as one of 
+.I GL_FRONT, GL_BACK or GL_FRONT_AND_BACK 
+and type must be one of 
+.I GL_EMISSION, GL_AMBIENT, GL_DIFFUSE, GL_SPECULAR, or GL_AMBIENT_AND_DIFFUSE.
+
+.IP SOURCE
+.B /sys/src/libtinygl
+.SH SEE ALSO
+.IR zbuffer (2) 
+.IR memdraw (2)
+.IR graphics (2)
+.PP
+M. Segal, K. Akeley.
+``The OpenGL® Graphics System: A Specification (Version 1.1)''
+.PP
+README.md
+.SH DIAGNOSTICS 
+Compile-time diagnostic and sanity checks can be enabled by setting TGL_ERROR_CHECK to 1 in the source code version of 
+.I GL/gl.h 
+as well as the system tinygl.h
+.SH BUGS
+Texture clipping is not functional.

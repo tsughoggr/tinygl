@@ -1,0 +1,241 @@
+.TH ZBUFFER 2
+.SH NAME
+ZBuffer, ZB_open, alloczbuffer, freezbuffer, ZB_close, ZB_resize, ZB_clear, ZB_copyFrameBuffer, ZB_initDither, ZB_closeDither, ZB_ditherFrameBuffer, ZB_plot, ZB_line, ZB_line_z, ZB_setTexture, ZB_fillTriangleFlat, ZB_fillTriangleFlatNOBLEND, ZB_fillTriangleSmooth, ZB_fillTriangleSmoothNOBLEND, ZB_fillTriangleMapping, ZB_fillTriangleMappingPerspective, ZB_fillTriangleMappingPerspectiveNOBLEND, ZB_fillTriangleFunc \- zbuffer GL functions
+.de PB
+.PP
+.ft L
+.nf
+..
+.SH SYNOPSIS
+.de PB
+.PP
+.ft L
+.nf
+..
+.PB
+#include <u.h>
+#include <libc.h>
+#include <draw.h>
+#include <memdraw.h>
+#include <tinygl.h>
+.PB
+typedef
+struct ZBuffer
+{
+	Memimage;			/* Memimage holding data */
+	GLushort *zbuf;			/* buffer holding GL vertex data */
+	PIXEL	 *pbuf;			/* buffer for pixel data, pointer to data->bdata in memimage mode */
+	PIXEL	 *current_texture;	/* buffer for triangle texturing */
+	GLfloat pointsize;
+
+	GLubyte stipplepattern[];	/* pattern for texture stipple */
+	GLuint 	dostipple;	 	/* flag: enable stipple */
+
+	GLenum	blendeq,		/* GL constants for blending modes */ 
+		sfactor,
+		fdactor;
+	GLint	enable_blend;		/* flag: enable blending */
+	GLint	linesize;
+	...
+	GLubyte	frame_buffer_allocated;	/* is pbuf malloc'd? unused in memimage mode */
+
+} ZBuffer;
+.PB
+typedef
+struct ZBufferPoint {
+  GLint x,y,z;     /* integer coordinates in the zbuffer */
+  GLint s,t;       /* coordinates for the mapping */
+  GLint r,g,b;     /* color indexes */
+  
+  GLfloat sz,tz;   /* temporary coordinates for mapping */
+} ZBufferPoint;
+.PB
+.PD 0
+ZBuffer* alloczbufferd(Rectangle, ulong, Memdata*);
+.PB
+ZBuffer* alloczbuffer(Rectangle, GLint);
+.PB
+void freezbuffer(ZBuffer*);
+.PB
+ZBuffer *ZB_open(int xsize,int ysize,int mode,
+		 void *frame_buffer);
+.PB
+void ZB_close(ZBuffer *zb);
+.PB
+void ZB_resize(ZBuffer *zb,void *frame_buffer,
+		GLint xsize,GLint ysize);
+.PB
+void ZB_clear(ZBuffer *zb,GLint clear_z,GLint z,
+	      GLint clear_color,GLint r,GLint g,GLint b);
+.PB
+void ZB_copyFrameBuffer(ZBuffer *zb,void *buf,GLint linesize);
+.PB
+void ZB_plot(ZBuffer *zb,ZBufferPoint *p);
+.PB
+void ZB_line(ZBuffer *zb,ZBufferPoint *p1,ZBufferPoint *p2);
+.PB
+void ZB_line_z(ZBuffer * zb, ZBufferPoint * p1, ZBufferPoint * p2);
+.PB
+void ZB_setTexture(ZBuffer *zb, PIXEL *texture);
+.PB
+void ZB_fillTriangleFlat(ZBuffer *zb,
+		 ZBufferPoint *p1,ZBufferPoint *p2,ZBufferPoint *p3);
+.PB
+void ZB_fillTriangleFlatNOBLEND(ZBuffer *zb,
+		 ZBufferPoint *p1,ZBufferPoint *p2,ZBufferPoint *p3);
+.PB
+void ZB_fillTriangleSmooth(ZBuffer *zb,
+		   ZBufferPoint *p1,ZBufferPoint *p2,ZBufferPoint *p3);
+.PB
+void ZB_fillTriangleSmoothNOBLEND(ZBuffer *zb,
+		   ZBufferPoint *p1,ZBufferPoint *p2,ZBufferPoint *p3);
+.PB
+void ZB_fillTriangleMappingPerspective(ZBuffer *zb,
+                    ZBufferPoint *p0,ZBufferPoint *p1,ZBufferPoint *p2);
+.PB
+void ZB_fillTriangleMappingPerspectiveNOBLEND(ZBuffer *zb,
+                    ZBufferPoint *p0,ZBufferPoint *p1,ZBufferPoint *p2);
+.PB
+void (*ZB_fillTriangleFunc)(ZBuffer  *,
+	    ZBufferPoint *,ZBufferPoint *,ZBufferPoint *);
+.SH DESCRIPTION
+The
+.B ZBuffer
+type defines an optionally memimage backed set of buffers,
+flags, and values which are used by the
+.IR tinygl (2)
+graphics routines.
+.PP
+.TP 10
+.B Memimage
+The optional 
+.IR memimage (2) 
+backing structure. Semantically equivalent member values 
+should be equal to those in the 
+.B ZBuffer
+structure, but are not synchronized after creation.
+.TP
+.B zbuf
+The geometry depth buffer which stores point data used for culling and drawing.
+.TP
+.B pbuf
+The pixel buffer. A pointer to Memimage->data->bdata in memimage mode.
+In 32-bit mode always ABGR32, in 16-bit always RGB16. 
+.TP
+.B pointsize
+The rasterized diameter of aliased and unaliased points, by default 1. 
+.TP
+.B dostipple
+The stipplepattern and dostipple relate to the selective pixel discarding stipple feature. Stipplepattern is a mask array of size TGL_POLYGON_STIPPLE_BYTES. The dostipple flag determines whether to enable or disable stipple on the current context, dependant on the conditionally compiled TGL_FEATURE_POLYGON_STIPPLE being enabled at library compile time (disabled by default).
+.TP
+.B enable_blend
+The enable_blend flag and preceeding enums enable blending for the current context and determine the blending equation, source factor, and destination factor respectively. The default options for the blend operation are GL_FUNC_ADD, GL_ONE, and GL_ZERO, equivalent to the Porter-Duff operation S. These options are dependent on the compile time flag TGL_FEATURE_BLEND (enabled by default).
+.TP
+.B xsize, ysize
+Size in points of the geometry and pixel buffers. Equal to 
+.I Dx
+.IR (Memimage.r),
+.I Dy
+.IR (Memimage.r) 
+in the substructure memimage.
+.TP
+.B linesize
+The size in bytes of one scanline. Equal to wordsize * memimage->width.
+.TP
+.B depth_test, depth_write
+The flags enabling GL depth testing and depth writing, allowing for the selective discarding of occluded or distant objects.
+.TP
+.B frame_buffer_allocated
+The flag determining whether the pbuf was allocated on opening. Unused if custom buffer is provided or if memimage is present.
+.TP
+.BI ZB_open( xsize\fP, ysize\fP, mode\fP, frame_buffer\fP)
+.I ZB_open 
+opens and optionally allocates a ZBuffer of 
+.I xsize 
+by 
+.I ysize 
+pixels. It is opened in the pixel channel format given by 
+.I mode, 
+which should be 
+.IR ZB_MODE_546G5B 
+or 
+.IR ZB_MODE_RGBA 
+where ZB_MODE_RGBA is the same as 
+.IR ABGR32 
+in
+.I allocimage (2). 
+The framebuffer will be malloc'd if 
+.I frame_buffer 
+is nil.
+.TP
+\f5ZB_close(\f2zb\f5)\fP
+Closes and frees the associated allocated zbuffer opened with ZB_open.
+.TP
+\f5alloczbuffer(\f2rect\fP, \f2mode\F5)\FP
+The 
+.I alloczbuffer 
+,
+.I alloczbufferd
+and
+.I freezbuffer
+functions are identical to the functions in 
+.IR memimage (2) 
+aside the fact that they allocate and free ZBuffer structures containing the requested memimage with the 
+.I xsize
+, 
+.I ysize
+, 
+.I linesize
+, and
+.I pbuf 
+members associated to the corresponding memimage substructure elements.
+.TP
+\f5ZB_clear(\f2zb\fP, \f2clear_z\fP, \f2z\fP, \f2clear_color\fP, \f2r\fP, \f2g\fP, \f2b\f5)
+ZB_clear clears buffers associated with 
+.I zb. 
+If the flag 
+.I clear_z 
+is set the depth buffer 
+.I zbuf 
+will have its contents set to the value of 
+.I z. 
+The 
+.I clear_color 
+flag will instruct the pixel buffer 
+.I pbuf 
+be cleared with a color described by the remaining arguments.
+.TP
+\f5ZB_copyFrameBuffer(\f2zb\fP, \f2buf\fP, \f2linesize\F5)
+Copies the pixel buffer from 
+.I zb 
+to 
+.I buf 
+.TP
+\f5ZB_initDither(\f2zb\fP, \f2nb_colors\fP, \f2*color_indexes\fP, \f2*color_table\f5)
+The dithering functions are not implemented at this time, please wait warmly.
+.TP
+\f5ZB_setTexture(\f2zb\fP, \f2*texture\fP)
+Sets the texture for the normal triangle fill operations to one pointed to by texture. 
+.TP
+\f5ZB_fillTriangle( \f2zb\fP, \f2p1\fP, \f2p2\fP, \f2p3\f5)
+The 
+.I fillTriangle 
+family of functions draws a triangle of pixels of the previously bound texture from the 
+.I ZB_setTexture 
+call between the three given points. Higher order shapes are constructed logically through these triangle functions.
+.SH SOURCE
+.B /sys/src/libtinygl
+.SH SEE ALSO
+.IR tinygl (2)
+.IR memdraw (2)
+.IR graphics (2)
+.PP
+M. Segal, K. Akeley.
+``The OpenGL® Graphics System: A Specification (Version 1.1)''
+.SH DIAGNOSTICS 
+Compile-time diagnostic and sanity checks can be enabled by setting TGL_ERROR_CHECK to 1 in the source code version of 
+.I GL/gl.h 
+as well as the system tinygl.h
+.SH BUGS
+The ZB_MODE_RGBA 32-bit mode is actually ABGR32, this is selected by default in 
+.I alloczbuffer.
