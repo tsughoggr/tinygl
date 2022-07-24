@@ -171,7 +171,7 @@ is nil.
 \f5ZB_close(\f2zb\f5)\fP
 Closes and frees the associated allocated zbuffer opened with ZB_open.
 .TP
-\f5alloczbuffer(\f2rect\fP, \f2mode\F5)\FP
+\f5alloczbuffer(\f2rect\fP, \f2mode\f5)\fP
 The 
 .I alloczbuffer 
 ,
@@ -205,7 +205,7 @@ flag will instruct the pixel buffer
 .I pbuf 
 be cleared with a color described by the remaining arguments.
 .TP
-\f5ZB_copyFrameBuffer(\f2zb\fP, \f2buf\fP, \f2linesize\F5)
+\f5ZB_copyFrameBuffer(\f2zb\fP, \f2buf\fP, \f2linesize\f5)
 Copies the pixel buffer from 
 .I zb 
 to 
