@@ -1036,6 +1036,76 @@ void glLightModelfv(GLint pname,GLfloat *param);
 
 /* misc */
 
+void glFlush(void);
+void glFinish(void);
+void glHint(GLint target,GLint mode);
+void glGetIntegerv(GLint pname,GLint *params);
+void glGetFloatv(GLint pname, GLfloat *v);
+const GLubyte* glGetString(GLenum name);
+GLenum glGetError();
+void glFrontFace(GLint mode);
+
+/* opengl 1.2 arrays */
+void glEnableClientState(GLenum array);
+void glDisableClientState(GLenum array);
+void glArrayElement(GLint i);
+void glVertexPointer(GLint size, GLenum type, GLsizei stride, 
+                     const GLvoid *pointer);
+void glColorPointer(GLint size, GLenum type, GLsizei stride, 
+                     const GLvoid *pointer);
+void glNormalPointer(GLenum type, GLsizei stride, 
+                      const GLvoid *pointer);
+void glTexCoordPointer(GLint size, GLenum type, GLsizei stride, 
+                       const GLvoid *pointer);
+/* opengl 2.0 buffers */
+void glGenBuffers(	GLsizei n,
+ 					GLuint * buffers);
+void glDeleteBuffers(	GLsizei n,
+					 	const GLuint * buffers);
+void glBindBuffer(	GLenum target,
+ 					GLuint buffer);
+GLboolean glIsBuffer(	GLuint buffer);
+void *glMapBuffer(	GLenum target,
+				 	GLenum access);
+void glBufferData(	GLenum target,
+				 	GLsizei size,
+				 	const void * data,
+				 	GLenum usage);
+
+void glBindBufferAsArray(GLenum target, GLuint buffer, GLenum type, GLint size, GLint stride);
+
+/* opengl 1.2 polygon offset */
+void glPolygonOffset(GLfloat factor, GLfloat units);
+void glBlendFunc(GLint, GLint);
+void glBlendEquation(GLenum mode);
+void glDepthMask(GLint);
+
+/* Point Size */
+void glPointSize(GLfloat);
+
+/* Raster rendering */
+void glRasterPos2f(GLfloat, GLfloat);
+void glRasterPos3f(GLfloat, GLfloat, GLfloat);
+void glRasterPos4f(GLfloat, GLfloat, GLfloat, GLfloat);
+
+void glRasterPos2fv(GLfloat* v);
+void glRasterPos3fv(GLfloat* v);
+void glRasterPos4fv(GLfloat* v);
+void glDrawPixels(GLsizei width, GLsizei height, GLenum format, GLenum type, void* data);
+void glPixelZoom(GLfloat x, GLfloat y);
+
+/* PostProcessing pass implementation */
+void glPostProcess(GLuint (*postprocess)(GLint x, GLint y, GLuint pixel, GLushort z));
+/* not implemented, just added to compile  */
+
+void glPolygonStipple(void* a);
+/* non compatible functions */
+
+void glDebug(GLint mode);
+
+void glInit(void *zbuffer);
+void glClose(void);
+
 
 /*
  * Zbuffer
