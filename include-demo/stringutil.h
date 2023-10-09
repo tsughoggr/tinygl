@@ -31,6 +31,9 @@
 #endif
 
 
+
+
+
 static char* strcatalloc(const char* s1, const char* s2){
 	char* d = NULL; d = STRUTIL_ALLOC(strlen(s1) + strlen(s2) + 1);
 	if(d){
@@ -81,6 +84,8 @@ static char* str_null_terminated_alloc(const char* in, unsigned int len){
 	return d;
 }
 
+
+
 static unsigned int strprefix(const char *pre, const char *str)
 {
 		unsigned long lenpre = strlen(pre),
@@ -109,6 +114,31 @@ static long strfind(const char* text, const char* subtext){
 	return -1;
 }
 
+
+static int str_inplace_repl_alloc(
+	char** inbuf,
+	char* replaceme,
+	char* replacewith
+){
+	long loc;
+	char* buf = *inbuf;
+	if(!(buf)) return 0;
+	loc = strfind(buf, replaceme);
+	if(loc == -1) return 0;
+	/*step 1- grab the before portion and make it into its own buffer.*/
+	buf = str_null_terminated_alloc(*inbuf, loc);			if(!buf) goto error;
+	/*step 2- add on the replacing text*/
+	strcatallocf1(buf, replacewith); 						if(!buf) goto error;
+	/*step 3- add on the after portion*/
+	strcatallocf1(buf,(*inbuf) + loc + strlen(replaceme));	if(!buf) goto error;
+	/*step 4- write the char* back*/
+	inbuf[0] = buf;
+	return 1;
+
+	error:;
+	*inbuf = NULL;
+	return 0; /*error.*/
+}
 
 static unsigned long read_until_terminator(FILE* f, char* buf, const unsigned long buflen, char terminator){
 	unsigned long i = 0;
@@ -372,6 +402,9 @@ static char* str_repl_allocf(char* text, char* subtext, char* replacement){
 typedef struct strll{
 	char* text;
 	unsigned long identification;
+	unsigned long linenum;
+	unsigned long colnum;
+	char* filename;
 	void* data;
 	struct strll* right;
 	struct strll* child;
@@ -493,76 +526,5 @@ static strll tokenize(char* alloced_text, const char* token){
 	return result;
 }
 
-static strll* parse_matched(strll* current_node, const char* tl, const char* tr){
-	strll* child_old; strll* right_old;
-	long current_tl_location; long counter = 1;
-	long current_tr_location; long start_tl_location;
-	long len_tl;
-	long len_tr;
-	len_tl = strlen(tl);
-	len_tr = strlen(tr);
-	current_tl_location = strfind(current_node->text, tl);
-	start_tl_location = current_tl_location;
-	current_tr_location = strfind(current_node->text, tr);
-	if(current_tr_location > -1 && 
-		current_tr_location < current_tl_location){
-		printf("\n<SYNTAX ERROR> %s before %s\n", tr, tl);
-		exit(1);
-	}
-	if(current_tr_location == -1 &&
-		current_tl_location != -1){
-		printf("\n<SYNTAX ERROR> You have a %s, but no matching %s ?", tl, tr);
-		exit(1);
-	}
-	/*We could not find a bracketed pair!*/
-	if(current_tl_location == -1){
-		return current_node;
-	}
-	child_old = current_node->child;
-	current_node->child = STRUTIL_CALLOC(1, sizeof(strll));
-	current_node->child->right = child_old;
-	right_old = current_node->right;
-	current_node->right = STRUTIL_CALLOC(1, sizeof(strll));
-	current_node->right->right = right_old;
-	/*Inch along, incrementing on*/
-	{ char* begin;long off = 0;
-		char* metaproc = current_node->text + current_tl_location + len_tl;
-		begin = metaproc;
-		current_tl_location = strfind(metaproc, tl);
-		current_tr_location = strfind(metaproc, tr);
-		while(counter > 0){
-			current_tl_location = strfind(metaproc, tl);
-			current_tr_location = strfind(metaproc, tr);
-			/*Handle the erroneous case- we cannot find tr.*/
-			if(current_tr_location == -1){
-				printf("\n<SYNTAX ERROR> Unmatched %s,%s group.\n", tl, tr);
-				exit(1);
-			}
-			if(current_tl_location != -1 &&
-			current_tl_location < current_tr_location){
-				off += current_tl_location + len_tl;
-				metaproc += current_tl_location + len_tl; counter++;
-			} else {
-				metaproc += current_tr_location + len_tr; counter--;
-				off += current_tr_location + len_tr;
-			}
-		}
-		if(counter < 0){
-			printf("\n<INTERNAL ERROR> Counter for %s,%s group somehow went negative.\n", tl, tr);
-			exit(1);
-		}
-		current_node->child->text = str_null_terminated_alloc(begin, off - len_tr);
-		{
-			char* text_old = current_node->text;
-			current_node->text = str_null_terminated_alloc(text_old, start_tl_location);
-			
-
-			/*Grab the post-text.*/
-			current_node->right->text = strcatalloc(begin + off, "");
-			free(text_old);
-		}
-	}
-	return current_node->child;
-}
 
 #endif
